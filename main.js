@@ -75,7 +75,7 @@ function init() {
     floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
     floor.rotation.x = Math.PI / 2;
-    floor.position.y = -0.5;
+    floor.position.y = 0;
     scene.add(floor);
 
     scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
@@ -131,8 +131,8 @@ function init() {
     });
 
     max.animator = maxAnimator;
-    max.position.set(0, 25, 0);
     max.scale.set(40, 55, 1.0);
+    placeOnFloor(max);
     maxAnimator.stop('standFront');
     scene.add(max);
 }
@@ -193,6 +193,10 @@ function TextureAnimator(sprite, configs) {
             config.texture.offset.y = currentRow / this.tilesVertical;
         }
     };
+}
+
+function placeOnFloor(object) {
+    object.position.y = object.scale.y / 2;
 }
 
 function panObject(object, target) {
