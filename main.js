@@ -27,18 +27,20 @@ function init() {
     backgroundScene = new THREE.Scene();
 
     // CAMERA
-    var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-    var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-    perspectiveCamera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+
+    var near = 0.1,
+        far = 20000,
+        viewPortWidth = window.innerWidth,
+        viewPortHeight = window.innerHeight,
+
     orthoGraphicCamera = new THREE.OrthographicCamera(
-        SCREEN_WIDTH / - 2,
-        SCREEN_WIDTH / 2,
-        SCREEN_HEIGHT / 2,
-        SCREEN_HEIGHT / - 2, 1, 1000,
-        NEAR,
-        FAR
+        viewPortWidth / -2,
+        viewPortWidth / 2,
+        viewPortHeight / 2,
+        viewPortHeight / - 2,
+        near,
+        far
     );
-    camera = perspectiveCamera;
     camera = orthoGraphicCamera;
 
     scene.add(camera);
@@ -51,6 +53,8 @@ function init() {
     } else {
         renderer = new THREE.CanvasRenderer();
     }
+
+    var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
     renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     container = document.getElementById('game-wrapper');
     container.appendChild(renderer.domElement);
