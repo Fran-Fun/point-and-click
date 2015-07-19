@@ -63,11 +63,6 @@ function init() {
     // CONTROLS
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-    // LIGHT
-    var light = new THREE.PointLight(0xffffff);
-    light.position.set(0,250,0);
-    scene.add(light);
-
     // FLOOR
     var floorGeometry = new THREE.PlaneBufferGeometry(1000, 1000, 10, 10);
 
