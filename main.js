@@ -120,8 +120,8 @@ function init() {
     var maxStandRightTexture = THREE.ImageUtils.loadTexture('images/max-stand-right.png');
 
     var maxMaterial = new THREE.SpriteMaterial();
-    max = new THREE.Sprite(maxMaterial);
-    maxAnimator = new TextureAnimator(max, {
+    maxSprite = new THREE.Sprite(maxMaterial);
+    maxAnimator = new TextureAnimator(maxSprite, {
         walkFront: {texture: maxWalkFrontTexture, width: 43, height: 56, tilesHoriz: 8, tilesVert: 1, numTiles: 8, duration: 120},
         standFront: {texture: maxStandFrontTexture, width: 34, height: 52},
         walkBack: {texture: maxWalkBackTexture, width: 40, height: 55, tilesHoriz: 8, tilesVert: 1, numTiles: 8, duration: 120},
@@ -132,9 +132,13 @@ function init() {
         standLeft: {texture: maxStandRightTexture, width: -37, height: 52}
     });
 
+    max = new THREE.Object3D();
     max.animator = maxAnimator;
-    placeOnFloor(max);
+    max.sprite = maxSprite;
     maxAnimator.stop('standFront');
+    scene.add(max);
+    max.add(maxSprite);
+    placeOnFloor(maxSprite);
     scene.add(max);
 }
 
@@ -172,7 +176,6 @@ function TextureAnimator(sprite, configs) {
 
         // which image is currently being displayed?
         this.currentTile = 0;
-
         this.stopped = false;
     }
 
@@ -229,10 +232,11 @@ function panObject(object, target) {
 }
 
 function setObjectScale(object) {
+    // var bigness = object.position.z / 100;
     var bigness = 1;
-    object.scale.x = object.animator.currentConfig.width * bigness;
-    object.scale.y = object.animator.currentConfig.height * bigness;
-    placeOnFloor(object);
+
+    object.scale.x = bigness;
+    object.scale.y = bigness;
 }
 
 function moveMax(target) {
