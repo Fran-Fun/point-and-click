@@ -16,6 +16,7 @@ var raycaster = new THREE.Raycaster();
 var max;
 var floor;
 var backgroundScene;
+var walkSpeed = 0.13;
 
 init();
 animate();
@@ -140,6 +141,7 @@ function init() {
     max.sprite = maxSprite;
     maxAnimator.stop('standFront');
     scene.add(max);
+    max.position.set(63, 0, 172);
     max.add(maxSprite);
     placeOnFloor(maxSprite);
     scene.add(max);
@@ -223,7 +225,7 @@ function panObject(object, target) {
 
     // Kind of weird that it has to be done this way but ¯\_(ツ)_/¯
     // https://github.com/tweenjs/tween.js/issues/189#issuecomment-83422621
-    var time = from.distanceTo(target) / 0.06;
+    var time = from.distanceTo(target) / walkSpeed;
 
     if (object.tween) {
         object.tween.stop();
@@ -235,8 +237,7 @@ function panObject(object, target) {
 }
 
 function setObjectScale(object) {
-    // var bigness = object.position.z / 100;
-    var bigness = 1;
+    var bigness = (object.position.z + 1000) / 600;
 
     object.scale.x = bigness;
     object.scale.y = bigness;
@@ -276,7 +277,7 @@ function moveMax(target) {
 
     // Kind of weird that it has to be done this way but ¯\_(ツ)_/¯
     // https://github.com/tweenjs/tween.js/issues/189#issuecomment-83422621
-    var time = from.distanceTo(target) / 0.06;
+    var time = from.distanceTo(target) / walkSpeed;
 
     if (max.tween) {
         max.tween.stop();
