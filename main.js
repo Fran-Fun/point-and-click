@@ -28,10 +28,10 @@ function init() {
 
     // CAMERA
 
-    var near = 0.1,
-        far = 20000,
-        viewPortWidth = window.innerWidth,
-        viewPortHeight = window.innerHeight,
+    var near = 0,
+        far = 500,
+        viewPortWidth = 640,
+        viewPortHeight = 480,
 
     orthoGraphicCamera = new THREE.OrthographicCamera(
         viewPortWidth / -2,
@@ -44,7 +44,7 @@ function init() {
     camera = orthoGraphicCamera;
 
     scene.add(camera);
-    camera.position.set(0, 150, 400);
+    camera.position.set(0, viewPortHeight/2, 400);
     camera.lookAt(scene.position);
 
     // RENDERER
@@ -101,8 +101,7 @@ function init() {
     });
     var background = new THREE.Sprite(backgroundMaterial);
 
-    background.scale.set(480 * 2, 200 * 2, 1);
-    background.position.set(0, 0, -50);
+    background.scale.set(480 * 2.4, 200 * 2.4, 1);
     backgroundScene.add(background);
 
     // 344 x 56
