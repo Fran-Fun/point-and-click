@@ -195,21 +195,24 @@ function TextureAnimator(sprite, configs) {
     };
 }
 
-function moveCamera(target) {
-    // camera.position.set(max.position.x, camera.position.y, camera.position.z);
-    var from = camera.position;
+function panObject(object, target) {
+    var from = object.position;
+
+    target.x = target.x ? target.x : object.position.x;
+    target.y = target.y ? target.y : object.position.y;
+    target.z = target.z ? target.z : object.position.z;
 
     // Kind of weird that it has to be done this way but ¯\_(ツ)_/¯
     // https://github.com/tweenjs/tween.js/issues/189#issuecomment-83422621
     var time = from.distanceTo(target) / 0.06;
 
-    if (camera.tween) {
-        camera.tween.stop();
+    if (object.tween) {
+        object.tween.stop();
     }
 
-    camera.tween = new TWEEN.Tween(from).to(target, time);
+    object.tween = new TWEEN.Tween(from).to(target, time);
 
-    camera.tween.start();
+    object.tween.start();
 }
 
 function moveMax(target) {
@@ -290,12 +293,8 @@ window.requestAnimationFrame(render);
 
 function cameraUpdate() {
     if (Math.abs(max.position.x - camera.position.x) > 100) {
-        var target = {
-            x: max.position.x,
-            y: camera.position.y,
-            z: camera.position.z
-        };
-        moveCamera(target);
+        var target = {x: max.position.x};
+        panObject(camera, target);
     }
 }
 
