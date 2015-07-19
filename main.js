@@ -127,11 +127,12 @@ function init() {
         walkBack: {texture: maxWalkBackTexture, width: 40, height: 55, tilesHoriz: 8, tilesVert: 1, numTiles: 8, duration: 120},
         standBack: {texture: maxStandBackTexture, width: 31, height: 52},
         walkRight: {texture: maxWalkRightTexture, width: 51, height: 54, tilesHoriz: 8, tilesVert: 1, numTiles: 8, duration: 120},
-        standRight: {texture: maxStandRightTexture, width: 37, height: 52}
+        standRight: {texture: maxStandRightTexture, width: 37, height: 52},
+        walkLeft: {texture: maxWalkRightTexture, width: -51, height: 54, tilesHoriz: 8, tilesVert: 1, numTiles: 8, duration: 120},
+        standLeft: {texture: maxStandRightTexture, width: -37, height: 52}
     });
 
     max.animator = maxAnimator;
-    max.scale.set(40, 55, 1.0);
     placeOnFloor(max);
     maxAnimator.stop('standFront');
     scene.add(max);
@@ -140,9 +141,16 @@ function init() {
 function TextureAnimator(sprite, configs) {
     var sprite;
     stopped = false;
+    this.sprite = sprite;
+    this.configs = configs;
+
+    this.getConfig = function(configStr) {
+        return configs[configStr];
+    }
 
     this.animate = function (configStr) {
-        config = configs[configStr];
+        config = this.getConfig(configStr);
+        this.currentConfig = config;
         sprite.material.map = config.texture;
         sprite.scale.set(config.width, config.height, 1);
 
@@ -170,7 +178,8 @@ function TextureAnimator(sprite, configs) {
 
     this.stop = function(frameName) {
         this.stopped = true;
-        var frame = configs[frameName];
+        var frame = this.getConfig(frameName);
+        this.currentConfig = frame;
         sprite.material.map = frame.texture;
         sprite.scale.set(frame.width, frame.height, 1);
     }
@@ -219,6 +228,13 @@ function panObject(object, target) {
     object.tween.start();
 }
 
+function setObjectScale(object) {
+    var bigness = 1;
+    object.scale.x = object.animator.currentConfig.width * bigness;
+    object.scale.y = object.animator.currentConfig.height * bigness;
+    placeOnFloor(object);
+}
+
 function moveMax(target) {
     // This method of detecting a character's orientation
     // is brittle since it will break if you move the camera :\
@@ -232,14 +248,13 @@ function moveMax(target) {
     // Z goes higher as you go down
     if (deltaX > deltaZ) {
         // Left/right changed more
-        max.animator.animate('walkRight');
-        stopFrame = 'standRight';
 
         if (from.x > target.x) {
-            direction = 'left';
-            max.scale.set(Math.abs(max.scale.x) * -1, max.scale.y, 1);
+            max.animator.animate('walkLeft');
+            stopFrame = 'standLeft';
         } else {
-            max.scale.set(Math.abs(max.scale.x) * 1, max.scale.y, 1);
+            max.animator.animate('walkRight');
+            stopFrame = 'standRight';
         }
     } else {
         // Up/down changed more
@@ -264,9 +279,6 @@ function moveMax(target) {
 
     max.tween.onComplete(function() {
         max.animator.stop(stopFrame);
-        if (direction == 'left') {
-            max.scale.set(Math.abs(max.scale.x) * -1, max.scale.y, 1);
-        }
     });
 
     max.tween.start();
@@ -314,6 +326,7 @@ function update() {
     maxAnimator.update(1000 * delta);
     cameraUpdate();
     // controls.update();
+    setObjectScale(max);
 }
 
 function render() {
