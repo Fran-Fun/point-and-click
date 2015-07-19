@@ -216,20 +216,26 @@ function placeOnFloor(object) {
     object.position.y = object.scale.y / 2;
 }
 
-function panObject(object, target) {
+function panObject(object, target, options) {
     var from = object.position;
+
+    options = options ? options : {};
 
     target.x = target.x ? target.x : object.position.x;
     target.y = target.y ? target.y : object.position.y;
     target.z = target.z ? target.z : object.position.z;
 
+    if (target.x < options.constrain.x[0]) {
+        target = options.constrain.x[0];
+    }
+
+    if (target.x > options.constrain.x[1]) {
+        target = options.constrain.x[1];
+    }
+
     // Kind of weird that it has to be done this way but ¯\_(ツ)_/¯
     // https://github.com/tweenjs/tween.js/issues/189#issuecomment-83422621
     var time = from.distanceTo(target) / walkSpeed;
-
-    if (object.tween) {
-        object.tween.stop();
-    }
 
     object.tween = new TWEEN.Tween(from).to(target, time);
 
@@ -313,12 +319,10 @@ function onMouseClick(event) {
 
 window.addEventListener('mousedown', onMouseClick, false);
 
-window.requestAnimationFrame(render);
-
 function cameraUpdate() {
     if (Math.abs(max.position.x - camera.position.x) > 100) {
         var target = {x: max.position.x};
-        panObject(camera, target);
+        panObject(camera, target, {constrain: {x: [-256, 256]}});
     }
 }
 
