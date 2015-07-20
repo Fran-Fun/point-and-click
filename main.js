@@ -6,8 +6,7 @@
 // MAIN
 
 // Standard global variables
-var container, scene, camera, renderer, controls;
-var keyboard = new THREEx.KeyboardState();
+var container, scene, camera, renderer;
 var clock = new THREE.Clock();
 
 // Custom global variables
@@ -80,9 +79,6 @@ function init() {
         return {width: width, height: height};
     });
     resizer.trigger();
-
-    // CONTROLS
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
 
     // FLOOR
     var floorGeometry = new THREE.PlaneBufferGeometry(1000, 1000, 10, 10);
