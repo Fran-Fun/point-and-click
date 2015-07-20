@@ -17,6 +17,11 @@ var max;
 var floor;
 var backgroundScene;
 var walkSpeed = 0.13;
+var SCREEN_WIDTH;
+var SCREEN_HEIGHT;
+var viewPortWidth = 640;
+var viewPortHeight = 480;
+var container;
 
 init();
 animate();
@@ -30,9 +35,7 @@ function init() {
     // CAMERA
 
     var near = 0,
-        far = 500,
-        viewPortWidth = 640,
-        viewPortHeight = 480,
+        far = 500;
 
     orthoGraphicCamera = new THREE.OrthographicCamera(
         viewPortWidth / -2,
@@ -55,15 +58,28 @@ function init() {
         renderer = new THREE.CanvasRenderer();
     }
 
-    var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-    renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    renderer.setSize(viewPortWidth, viewPortHeight);
     container = document.getElementById('game-wrapper');
     container.appendChild(renderer.domElement);
-    // renderer.sortObjects = false;
     renderer.autoClear = false;
 
     // EVENTS
-    THREEx.WindowResize(renderer, camera);
+    window.addEventListener('mousedown', onMouseClick, false);
+    window.addEventListener('resize', onWindowResize, false);
+    onWindowResize();
+
+    var resizer = new THREEx.WindowResize(renderer, camera, function(){
+        if (SCREEN_WIDTH / SCREEN_HEIGHT > viewPortWidth/viewPortHeight) {
+            var width = SCREEN_HEIGHT * (viewPortWidth / viewPortHeight);
+            var height = SCREEN_HEIGHT;
+        } else {
+            var width = SCREEN_WIDTH;
+            var height = SCREEN_WIDTH * (viewPortHeight / viewPortWidth);
+        }
+
+        return {width: width, height: height};
+    });
+    resizer.trigger();
 
     // CONTROLS
     controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -300,11 +316,20 @@ function moveMax(target) {
 
 function onMouseClick(event) {
 
+    function relMouseCoords(event, currentElement) {
+        // http://stackoverflow.com/a/20027355
+        var rect = currentElement.getBoundingClientRect(), // get absolute rect. of canvas
+        x = event.clientX - rect.left,                     // adjust for x
+        y = event.clientY - rect.top;                      // adjust for y
+
+        return {x: x, y: y};
+    }
+
     // calculate mouse position in normalized device coordinates
     // (-1 to +1) for both components
-
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    var mouse = relMouseCoords(event, renderer.domElement);
+    mouse.x = (mouse.x / renderer.domElement.width) * 2 - 1;
+    mouse.y = - (mouse.y / renderer.domElement.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects([floor]);
@@ -317,7 +342,10 @@ function onMouseClick(event) {
     }
 }
 
-window.addEventListener('mousedown', onMouseClick, false);
+function onWindowResize() {
+    SCREEN_WIDTH = window.innerWidth;
+    SCREEN_HEIGHT = window.innerHeight;
+}
 
 function cameraUpdate() {
     if (Math.abs(max.position.x - camera.position.x) > 100) {
