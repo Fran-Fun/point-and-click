@@ -105,14 +105,6 @@ function init() {
     // CUSTOM //
     ////////////
 
-    // Background
-    // MESH - Appears angled :(
-    // var backgroundMaterial = new THREE.MeshBasicMaterial({
-    //     map: THREE.ImageUtils.loadTexture('images/background-street.png')
-    // });
-    // var backgroundGeometry = new THREE.PlaneGeometry(480, 200, 1, 1);
-    // var background = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-
     var backgroundMaterial = new THREE.SpriteMaterial({
         map: THREE.ImageUtils.loadTexture('images/background-street.png')
     });
@@ -235,8 +227,6 @@ function placeOnFloor(object) {
 function panObject(object, target, options) {
     var from = object.position;
 
-    options = options ? options : {};
-
     target.x = target.x ? target.x : object.position.x;
     target.y = target.y ? target.y : object.position.y;
     target.z = target.z ? target.z : object.position.z;
@@ -251,7 +241,7 @@ function panObject(object, target, options) {
 
     // Kind of weird that it has to be done this way but ¯\_(ツ)_/¯
     // https://github.com/tweenjs/tween.js/issues/189#issuecomment-83422621
-    var time = from.distanceTo(target) / walkSpeed;
+    var time = from.distanceTo(target) / options.speed;
 
     object.tween = new TWEEN.Tween(from).to(target, time);
 
@@ -274,11 +264,10 @@ function moveMax(target) {
     var stopFrame;
     var direction;
 
-    // X goes higher as you go right
-    // Z goes higher as you go down
+    // X gets higher as you go right
+    // Z gets higher as you go down
     if (deltaX > deltaZ) {
         // Left/right changed more
-
         if (from.x > target.x) {
             max.animator.animate('walkLeft');
             stopFrame = 'standLeft';
@@ -350,7 +339,10 @@ function onWindowResize() {
 function cameraUpdate() {
     if (Math.abs(max.position.x - camera.position.x) > 100) {
         var target = {x: max.position.x};
-        panObject(camera, target, {constrain: {x: [-256, 256]}});
+        panObject(camera, target, {
+            constrain: {x: [-256, 256]},
+            speed: walkSpeed
+        });
     }
 }
 
@@ -365,7 +357,6 @@ function update() {
     var delta = clock.getDelta();
     maxAnimator.update(1000 * delta);
     cameraUpdate();
-    // controls.update();
     setObjectScale(max);
 }
 
