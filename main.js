@@ -277,10 +277,10 @@ function moveMax(target) {
     } else {
         // Up/down changed more
         if (from.z < target.z) {
-            stopFrame = 'standFront';max.animator.animate('walkFront');
+            max.animator.animate('walkFront');
             stopFrame = 'standFront';
         } else {
-            stopFrame = 'standBack';max.animator.animate('walkBack');
+            max.animator.animate('walkBack');
             stopFrame = 'standBack';
         }
     }
@@ -325,7 +325,6 @@ function onMouseClick(event) {
     if (intersects.length > 0) {
         var coord = intersects[0].point;
         var target = {x: coord.x, y: max.position.y, z: coord.z};
-
         this.moveMax(target);
     }
 }
