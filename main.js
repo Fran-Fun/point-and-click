@@ -163,6 +163,9 @@ function TextureAnimator(sprite, configs) {
 
     this.animate = function (configStr) {
         config = this.getConfig(configStr);
+        if (config == this.currentConfig) {
+            return;
+        }
         this.currentConfig = config;
         sprite.material.map = config.texture;
         sprite.scale.set(config.width, config.height, 1);
