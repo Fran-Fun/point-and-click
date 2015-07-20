@@ -254,7 +254,7 @@ function setObjectScale(object) {
     object.scale.y = bigness;
 }
 
-function moveMax(target) {
+function moveMax(target, onComplete) {
     // This method of detecting a character's orientation
     // is brittle since it will break if you move the camera :\
     var from = max.position;
@@ -297,9 +297,27 @@ function moveMax(target) {
 
     max.tween.onComplete(function() {
         max.animator.stop(stopFrame);
+        delete max.tween;
+        if (typeof onComplete == 'function') {
+            onComplete();
+        }
     });
 
     max.tween.start();
+}
+
+function walkPath(coords, loop) {
+    var moveNext = function() {
+        var coord = coords.shift();
+        if (!coord) {
+            return;
+        }
+        if (loop) {
+            coords.push(coord);
+        }
+        moveMax(coord, moveNext);
+    };
+    moveNext();
 }
 
 function onMouseClick(event) {
