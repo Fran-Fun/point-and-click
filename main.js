@@ -14,6 +14,7 @@ var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
 var max;
 var floor;
+var boundaries;
 var backgroundScene;
 var walkSpeed = 0.13;
 var SCREEN_WIDTH;
@@ -95,6 +96,24 @@ function init() {
     floor.position.y = 0;
     scene.add(floor);
 
+    var boundaryMaterial = new THREE.LineBasicMaterial({
+        color: 0x0000ff
+    });
+    boundaryMaterial.transparent = true;
+    boundaryMaterial.opacity = 0;
+    var boundaryGeometry = new THREE.Geometry();
+
+    boundaries = [
+        {x: 54.40763608017406, y: 0, z: 119.49848569245825},
+        {x: 270.8635121328982, y: 0, z: 87.82417999640273}
+    ];
+
+    boundaries.forEach(function(e) {
+        boundaryGeometry.vertices.push(new THREE.Vector3(e.x, e.y, e.z));
+    });
+    var boundaryLine = new THREE.Line(boundaryGeometry, boundaryMaterial);
+    scene.add(boundaryLine);
+
     scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
 
     ////////////
@@ -149,6 +168,16 @@ function init() {
     max.add(maxSprite);
     placeOnFloor(maxSprite);
     scene.add(max);
+
+    max.colliding = function(from, target) {
+        var aLine = new THREE.Line3(from, target);
+        var direction = aLine.delta();
+        direction.normalize();
+
+        var raycaster = new THREE.Raycaster(from, direction, 0, 10);
+        var intersectObject = raycaster.intersectObject(boundaryLine);
+        return intersectObject.length > 0;
+    };
 }
 
 function TextureAnimator(sprite, configs) {
@@ -261,7 +290,11 @@ function moveMax(target, onComplete) {
     var deltaX = Math.abs(from.x - target.x);
     var deltaZ = Math.abs(from.z - target.z);
     var stopFrame;
-    var direction;
+
+    if (max.colliding(from, target)) {
+        // Don't move if Max would collide with something
+        return;
+    }
 
     // X gets higher as you go right
     // Z gets higher as you go down
@@ -294,6 +327,13 @@ function moveMax(target, onComplete) {
     }
 
     max.tween = new TWEEN.Tween(from).to(target, time);
+
+    max.tween.onUpdate(function() {
+        if (max.colliding(from, target)) {
+            max.animator.stop(stopFrame);
+            max.tween.stop();
+        }
+    });
 
     max.tween.onComplete(function() {
         max.animator.stop(stopFrame);
