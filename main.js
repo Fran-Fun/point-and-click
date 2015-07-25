@@ -96,11 +96,6 @@ function init() {
     floor.position.y = 0;
     scene.add(floor);
 
-    var boundaryMaterial = new THREE.LineBasicMaterial({
-        color: 0x0000ff
-    });
-    boundaryMaterial.transparent = true;
-    boundaryMaterial.opacity = 0;
     var boundaryGeometry = new THREE.Geometry();
 
     boundaries = [
@@ -111,7 +106,11 @@ function init() {
     boundaries.forEach(function(e) {
         boundaryGeometry.vertices.push(new THREE.Vector3(e.x, e.y, e.z));
     });
-    var boundaryLine = new THREE.Line(boundaryGeometry, boundaryMaterial);
+
+    var boundaryLine = new THREE.Line(boundaryGeometry);
+    boundaryLine.material.transparent = true;
+    boundaryLine.material.opacity = 0;
+
     scene.add(boundaryLine);
 
     scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
