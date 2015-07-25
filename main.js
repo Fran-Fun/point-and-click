@@ -14,7 +14,7 @@ var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
 var max;
 var floor;
-var boundaries;
+var boundaryLine;
 var backgroundScene;
 var walkSpeed = 0.13;
 var SCREEN_WIDTH;
@@ -98,7 +98,7 @@ function init() {
 
     var boundaryGeometry = new THREE.Geometry();
 
-    boundaries = [
+    var boundaries = [
         {x: -485.36912818864596, y: 0, z: 465.03636601306400},
         {x: -493.50785651234530, y: 0, z: 177.08813241255905},
         {x: -341.83155593431064, y: 0, z: 161.25097956453135},
@@ -126,7 +126,7 @@ function init() {
         boundaryGeometry.vertices.push(new THREE.Vector3(e.x, e.y, e.z));
     });
 
-    var boundaryLine = new THREE.Line(boundaryGeometry);
+    boundaryLine = new THREE.Line(boundaryGeometry);
     boundaryLine.material.transparent = true;
     boundaryLine.material.opacity = 0;
 
@@ -186,16 +186,6 @@ function init() {
     max.add(maxSprite);
     placeOnFloor(maxSprite);
     scene.add(max);
-
-    max.colliding = function(from, target) {
-        var aLine = new THREE.Line3(from, target);
-        var direction = aLine.delta();
-        direction.normalize();
-
-        var raycaster = new THREE.Raycaster(from, direction, 0, 10);
-        var intersectObject = raycaster.intersectObject(boundaryLine);
-        return intersectObject.length > 0;
-    };
 }
 
 function TextureAnimator(sprite, configs) {
@@ -309,7 +299,7 @@ function moveMax(target, onComplete) {
     var deltaZ = Math.abs(from.z - target.z);
     var stopFrame;
 
-    if (max.colliding(from, target)) {
+    if (willCollide(from, target)) {
         // Don't move if Max would collide with something
         return;
     }
@@ -347,7 +337,7 @@ function moveMax(target, onComplete) {
     max.tween = new TWEEN.Tween(from).to(target, time);
 
     max.tween.onUpdate(function() {
-        if (max.colliding(from, target)) {
+        if (willCollide(from, target)) {
             max.animator.stop(stopFrame);
             max.tween.stop();
         }
@@ -376,6 +366,16 @@ function walkPath(coords, loop) {
         moveMax(coord, moveNext);
     };
     moveNext();
+}
+
+function willCollide(from, target) {
+    var aLine = new THREE.Line3(from, target);
+    var direction = aLine.delta();
+    direction.normalize();
+
+    var raycaster = new THREE.Raycaster(from, direction, 0, 10);
+    var intersectObject = raycaster.intersectObject(boundaryLine);
+    return intersectObject.length > 0;
 }
 
 function onMouseClick(event) {
